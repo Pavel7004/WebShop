@@ -2,6 +2,7 @@ package domain
 
 var (
 	ErrItemNotFound = NewError(404, "item_not_found", "Item not found")
+	ErrInvalidId    = NewError(404, "invalid_id", "Can't parse id string")
 )
 
 type Error struct {

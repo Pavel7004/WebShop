@@ -52,8 +52,7 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		// TODO:
-		return nil, err
+		return nil, domain.ErrInvalidId
 	}
 
 	var result models.Item
