@@ -22,6 +22,10 @@ type DB struct {
 
 var _ db.DB = (*DB)(nil)
 
+var (
+	ErrInvalidObjectType = errors.New("Returned object is not ObjectID")
+)
+
 func New() *DB {
 	db := new(DB)
 
@@ -89,7 +93,7 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 
 	resStr, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return "", nil
+		return "", ErrInvalidObjectType
 	}
 
 	return resStr.Hex(), nil
