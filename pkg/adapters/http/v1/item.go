@@ -35,8 +35,6 @@ func (h *Handler) GetItem(c *gin.Context) {
 		return
 	}
 
-	span.SetTag("item", item)
-
 	c.JSON(200, item)
 }
 
@@ -120,8 +118,6 @@ func (h *Handler) GetItems(c *gin.Context) {
 		return
 	}
 
-	span.SetTag("items", items)
-
 	c.JSON(200, items)
 }
 
@@ -157,8 +153,6 @@ func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
 		h.SendError(c, err)
 		return
 	}
-
-	span.SetTag("items", items)
 
 	c.JSON(200, items)
 }
