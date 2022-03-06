@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/adapters/db"
 	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
 	"github.com/Pavel7004/WebShop/pkg/domain"
@@ -51,6 +52,9 @@ func (db *DB) Close() error {
 }
 
 func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
@@ -78,6 +82,9 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 }
 
 func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
@@ -101,6 +108,9 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 }
 
 func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.Item, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
@@ -124,6 +134,9 @@ func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.
 }
 
 func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) ([]*domain.Item, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
