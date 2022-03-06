@@ -33,9 +33,10 @@ func (s *Server) Run() error {
 func (s *Server) prepareRouter() {
 	v1 := s.router.Group("/shop/v1")
 	{
-		v1.GET("/item/:item_id", s.v1.GetItem) // -
-		v1.POST("/item", s.v1.AddItem)         // -
-		v1.GET("/items", s.v1.GetItems)        // -
+		v1.GET("/item/:item_id", s.v1.GetItem)              // -
+		v1.POST("/item", s.v1.AddItem)                      // -
+		v1.GET("/items", s.v1.GetItems)                     // -
+		v1.GET("/items/recent", s.v1.GetRecentlyAddedItems) // -
 	}
 
 	// query ?a=1&b=2 <- GET, DELETE не имеют тела

@@ -2,6 +2,7 @@ package shop
 
 import (
 	"context"
+	"time"
 
 	dbi "github.com/Pavel7004/WebShop/pkg/adapters/db"
 	"github.com/Pavel7004/WebShop/pkg/components"
@@ -30,4 +31,8 @@ func (s *Shop) AddItem(ctx context.Context, item *domain.AddItemRequest) (string
 
 func (s *Shop) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.Item, error) {
 	return s.db.GetItemsByPrice(ctx, from, to)
+}
+
+func (s *Shop) GetRecentlyAddedItems(ctx context.Context, period time.Duration) ([]*domain.Item, error) {
+	return s.db.GetRecentlyAddedItems(ctx, period)
 }

@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/Pavel7004/WebShop/pkg/domain"
 	"github.com/gin-gonic/gin"
@@ -66,7 +67,7 @@ func (h *Handler) AddItem(c *gin.Context) {
 // @Produce     json
 // @Param       from	query	float64	false  "Price lower bound"
 // @Param       to		query	float64	false  "Price upper bound"
-// @Success      200  {object}  string
+// @Success      200  {object}  []domain.Item
 // @Failure      400  {object}  domain.Error
 // @Failure      404  {object}  domain.Error
 // @Failure      500  {object}  domain.Error
@@ -90,6 +91,35 @@ func (h *Handler) GetItems(c *gin.Context) {
 	}
 
 	items, err := h.shop.GetItemsByPrice(context.Background(), from, to)
+	if err != nil {
+		h.SendError(c, err)
+		return
+	}
+
+	c.JSON(200, items)
+}
+
+// GetRecentlyAddedItems godoc
+// @Summary     Get recenly added items
+// @Description	Get items that was added within last 3 days
+// @Tags        Items
+// @Produce     json
+// @Param       period	query	time.Duration	false  "Price lower bound"
+// @Success      200  {object}  []domain.Item
+// @Failure      400  {object}  domain.Error
+// @Failure      404  {object}  domain.Error
+// @Failure      500  {object}  domain.Error
+// @Router       /shop/v1/items/recent [get]
+func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
+	periodStr := c.DefaultQuery("period", time.Now().Sub(time.Now().AddDate(0, 0, -3)).String())
+
+	period, err := time.ParseDuration(periodStr)
+	if err != nil {
+		h.SendError(c, err)
+		return
+	}
+
+	items, err := h.shop.GetRecentlyAddedItems(context.Background(), period)
 	if err != nil {
 		h.SendError(c, err)
 		return

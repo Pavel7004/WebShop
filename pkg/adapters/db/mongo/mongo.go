@@ -14,13 +14,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var _ db.DB = (*DB)(nil)
+
 type DB struct {
 	client *mongo.Client
 
 	collectionItems *mongo.Collection
 }
-
-var _ db.DB = (*DB)(nil)
 
 var (
 	ErrInvalidObjectType = errors.New("Returned object is not ObjectID")
@@ -117,13 +117,32 @@ func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.
 
 	items := make([]*domain.Item, 0, len(results))
 	for _, it := range results {
-		items = append(items, &domain.Item{
-			ID:          it.ID.Hex(),
-			Name:        it.Name,
-			Description: it.Description,
-			Price:       it.Price,
-			CreatedAt:   it.CreatedAt,
-		})
+		items = append(items, it.ConvertToDomainItem())
+	}
+
+	return items, nil
+}
+
+func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) ([]*domain.Item, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	timeBound := time.Now().Add(-period)
+
+	cur, err := db.collectionItems.Find(ctx, bson.M{"created_at": bson.M{"$gte": timeBound}})
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var results []models.Item
+	if err := cur.All(ctx, &results); err != nil {
+		return nil, err
+	}
+
+	items := make([]*domain.Item, 0, len(results))
+	for _, it := range results {
+		items = append(items, it.ConvertToDomainItem())
 	}
 
 	return items, nil
