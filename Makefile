@@ -10,7 +10,7 @@ swag:
 	@echo "------------------"
 	@echo "Running swag...   "
 	@echo "------------------"
-	swag init --md ./ --pd -g ./pkg/adapters/http/*.go
+	swag init --md ./ --pd -g server.go -d ./pkg/adapters/http
 
 lint:
 	@echo "------------------"
