@@ -55,6 +55,8 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
+	span.SetTag("item_id", id)
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
@@ -62,6 +64,8 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 	if err != nil {
 		return nil, domain.ErrInvalidId
 	}
+
+	span.SetTag("object_id", objectID)
 
 	var result models.Item
 	if err := db.collectionItems.FindOne(ctx, bson.M{"_id": objectID}).Decode(&result); err != nil {
@@ -72,18 +76,24 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 		return nil, err
 	}
 
-	return &domain.Item{
+	item := &domain.Item{
 		ID:          result.ID.Hex(),
 		Name:        result.Name,
 		Description: result.Description,
 		Price:       result.Price,
 		CreatedAt:   result.CreatedAt,
-	}, nil
+	}
+
+	span.SetTag("result_item", item)
+
+	return item, nil
 }
 
 func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string, error) {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
+
+	span.SetTag("item_request", item)
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
@@ -99,17 +109,26 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 		return "", err
 	}
 
+	span.SetTag("insert_one_result", res)
+
 	resStr, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
 		return "", ErrInvalidObjectType
 	}
 
-	return resStr.Hex(), nil
+	resultId := resStr.Hex()
+
+	span.SetTag("result_id", resultId)
+
+	return resultId, nil
 }
 
 func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.Item, error) {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
+
+	span.SetTag("from", from)
+	span.SetTag("to", to)
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
@@ -130,12 +149,16 @@ func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.
 		items = append(items, it.ConvertToDomainItem())
 	}
 
+	span.SetTag("items", items)
+
 	return items, nil
 }
 
 func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) ([]*domain.Item, error) {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
+
+	span.SetTag("period", period.String())
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
@@ -157,6 +180,8 @@ func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) (
 	for _, it := range results {
 		items = append(items, it.ConvertToDomainItem())
 	}
+
+	span.SetTag("items", items)
 
 	return items, nil
 }
