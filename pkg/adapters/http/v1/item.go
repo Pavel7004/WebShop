@@ -93,7 +93,7 @@ func (h *Handler) GetItems(c *gin.Context) {
 
 	var (
 		fromStr = c.DefaultQuery("from", "0")
-		toStr   = c.DefaultQuery("to", "10")
+		toStr   = c.DefaultQuery("to", "99999999")
 	)
 
 	span.SetTag("from_query", fromStr)
