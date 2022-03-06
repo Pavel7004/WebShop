@@ -84,8 +84,6 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 		CreatedAt:   result.CreatedAt,
 	}
 
-	span.SetTag("result_item", item)
-
 	return item, nil
 }
 
@@ -149,8 +147,6 @@ func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.
 		items = append(items, it.ConvertToDomainItem())
 	}
 
-	span.SetTag("items", items)
-
 	return items, nil
 }
 
@@ -180,8 +176,6 @@ func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) (
 	for _, it := range results {
 		items = append(items, it.ConvertToDomainItem())
 	}
-
-	span.SetTag("items", items)
 
 	return items, nil
 }
