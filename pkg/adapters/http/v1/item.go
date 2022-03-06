@@ -111,7 +111,7 @@ func (h *Handler) GetItems(c *gin.Context) {
 // @Failure      500  {object}  domain.Error
 // @Router       /shop/v1/items/recent [get]
 func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
-	periodStr := c.DefaultQuery("period", time.Now().Sub(time.Now().AddDate(0, 0, -3)).String())
+	periodStr := c.DefaultQuery("period", (72 * time.Hour).String())
 
 	period, err := time.ParseDuration(periodStr)
 	if err != nil {
