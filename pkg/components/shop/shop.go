@@ -26,12 +26,16 @@ func (s *Shop) GetItemById(ctx context.Context, id string) (*domain.Item, error)
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
+	span.SetTag("id", id)
+
 	return s.db.GetItemById(ctx, id)
 }
 
 func (s *Shop) AddItem(ctx context.Context, item *domain.AddItemRequest) (string, error) {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
+
+	span.SetTag("item_request", item)
 
 	return s.db.AddItem(ctx, item)
 }
@@ -40,12 +44,17 @@ func (s *Shop) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
+	span.SetTag("from", from)
+	span.SetTag("to", to)
+
 	return s.db.GetItemsByPrice(ctx, from, to)
 }
 
 func (s *Shop) GetRecentlyAddedItems(ctx context.Context, period time.Duration) ([]*domain.Item, error) {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
+
+	span.SetTag("period", period.String())
 
 	return s.db.GetRecentlyAddedItems(ctx, period)
 }
