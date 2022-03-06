@@ -85,6 +85,7 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 		"name":        item.Name,
 		"price":       item.Price,
 		"description": item.Description,
+		"created_at":  time.Now(),
 	})
 
 	if err != nil {
