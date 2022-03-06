@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/domain"
 	"github.com/gin-gonic/gin"
 )
@@ -21,13 +22,20 @@ import (
 // @Failure      500  {object}  domain.Error
 // @Router       /shop/v1/item/{item_id} [get]
 func (h *Handler) GetItem(c *gin.Context) {
+	span, ctx := tracing.StartSpanFromContext(context.Background())
+	defer span.Finish()
+
 	id := c.Param("item_id")
 
-	item, err := h.shop.GetItemById(context.Background(), id)
+	span.SetTag("item_id", id)
+
+	item, err := h.shop.GetItemById(ctx, id)
 	if err != nil {
 		h.SendError(c, err)
 		return
 	}
+
+	span.SetTag("item", item)
 
 	c.JSON(200, item)
 }
@@ -45,17 +53,24 @@ func (h *Handler) GetItem(c *gin.Context) {
 // @Failure      500  {object}  domain.Error
 // @Router       /shop/v1/item [post]
 func (h *Handler) AddItem(c *gin.Context) {
+	span, ctx := tracing.StartSpanFromContext(context.Background())
+	defer span.Finish()
+
 	var req domain.AddItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.SendError(c, err)
 		return
 	}
 
-	id, err := h.shop.AddItem(context.Background(), &req)
+	span.SetTag("item_request", req)
+
+	id, err := h.shop.AddItem(ctx, &req)
 	if err != nil {
 		h.SendError(c, err)
 		return
 	}
+
+	span.SetTag("item_id", id)
 
 	c.JSON(200, id)
 }
@@ -73,10 +88,16 @@ func (h *Handler) AddItem(c *gin.Context) {
 // @Failure      500  {object}  domain.Error
 // @Router       /shop/v1/items [get]
 func (h *Handler) GetItems(c *gin.Context) {
+	span, ctx := tracing.StartSpanFromContext(context.Background())
+	defer span.Finish()
+
 	var (
 		fromStr = c.DefaultQuery("from", "0")
 		toStr   = c.DefaultQuery("to", "10")
 	)
+
+	span.SetTag("from_query", fromStr)
+	span.SetTag("to_query", toStr)
 
 	from, err := strconv.ParseFloat(fromStr, 64)
 	if err != nil {
@@ -90,11 +111,16 @@ func (h *Handler) GetItems(c *gin.Context) {
 		return
 	}
 
-	items, err := h.shop.GetItemsByPrice(context.Background(), from, to)
+	span.SetTag("from_parsed", from)
+	span.SetTag("to_parsed", to)
+
+	items, err := h.shop.GetItemsByPrice(ctx, from, to)
 	if err != nil {
 		h.SendError(c, err)
 		return
 	}
+
+	span.SetTag("items", items)
 
 	c.JSON(200, items)
 }
@@ -111,7 +137,12 @@ func (h *Handler) GetItems(c *gin.Context) {
 // @Failure      500  {object}  domain.Error
 // @Router       /shop/v1/items/recent [get]
 func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
+	span, ctx := tracing.StartSpanFromContext(context.Background())
+	defer span.Finish()
+
 	periodStr := c.DefaultQuery("period", (72 * time.Hour).String())
+
+	span.SetTag("period_query", periodStr)
 
 	period, err := time.ParseDuration(periodStr)
 	if err != nil {
@@ -119,11 +150,15 @@ func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
 		return
 	}
 
-	items, err := h.shop.GetRecentlyAddedItems(context.Background(), period)
+	span.SetTag("period_parsed", period)
+
+	items, err := h.shop.GetRecentlyAddedItems(ctx, period)
 	if err != nil {
 		h.SendError(c, err)
 		return
 	}
+
+	span.SetTag("items", items)
 
 	c.JSON(200, items)
 }
