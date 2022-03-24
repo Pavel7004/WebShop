@@ -123,8 +123,6 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
-	span.SetTag("item_request", item)
-
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
@@ -138,8 +136,6 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 	if err != nil {
 		return "", err
 	}
-
-	span.SetTag("insert_one_result", res)
 
 	resStr, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
