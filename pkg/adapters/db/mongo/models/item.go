@@ -15,7 +15,7 @@ type Item struct {
 	CreatedAt   time.Time          `bson:"created_at"`
 }
 
-func (it *Item) ConvertToDomainItem() *domain.Item {
+func (it *Item) ConvertToDomain() *domain.Item {
 	return &domain.Item{
 		ID:          it.ID.Hex(),
 		Name:        it.Name,
@@ -23,4 +23,14 @@ func (it *Item) ConvertToDomainItem() *domain.Item {
 		Price:       it.Price,
 		CreatedAt:   it.CreatedAt,
 	}
+}
+
+func ConvertItemsToDomain(items []Item) []*domain.Item {
+	result := make([]*domain.Item, 0, len(items))
+
+	for _, it := range items {
+		result = append(result, it.ConvertToDomain())
+	}
+
+	return result
 }

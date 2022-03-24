@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 	"strconv"
-	"time"
 
 	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/domain"
@@ -126,7 +125,6 @@ func (h *Handler) GetItems(c *gin.Context) {
 // @Description	Get items that was added within last 3 days
 // @Tags        Items
 // @Produce     json
-// @Param       period	query	time.Duration	false  "Price lower bound"
 // @Success      200  {object}  []domain.Item
 // @Failure      400  {object}  domain.Error
 // @Failure      404  {object}  domain.Error
@@ -136,19 +134,7 @@ func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
 	span, ctx := tracing.StartSpanFromContext(context.Background())
 	defer span.Finish()
 
-	periodStr := c.DefaultQuery("period", (72 * time.Hour).String())
-
-	span.SetTag("period_query", periodStr)
-
-	period, err := time.ParseDuration(periodStr)
-	if err != nil {
-		h.SendError(c, err)
-		return
-	}
-
-	span.SetTag("period_parsed", period)
-
-	items, err := h.shop.GetRecentlyAddedItems(ctx, period)
+	items, err := h.shop.GetRecentlyAddedItems(ctx, h.cfg.RecentItemsPeriod)
 	if err != nil {
 		h.SendError(c, err)
 		return

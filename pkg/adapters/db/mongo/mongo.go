@@ -142,12 +142,7 @@ func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.
 		return nil, err
 	}
 
-	items := make([]*domain.Item, 0, len(results))
-	for _, it := range results {
-		items = append(items, it.ConvertToDomainItem())
-	}
-
-	return items, nil
+	return models.ConvertItemsToDomain(results), nil
 }
 
 func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) ([]*domain.Item, error) {
@@ -172,10 +167,5 @@ func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) (
 		return nil, err
 	}
 
-	items := make([]*domain.Item, 0, len(results))
-	for _, it := range results {
-		items = append(items, it.ConvertToDomainItem())
-	}
-
-	return items, nil
+	return models.ConvertItemsToDomain(results), nil
 }
