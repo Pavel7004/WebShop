@@ -3,6 +3,7 @@ package http
 import (
 	v1 "github.com/Pavel7004/WebShop/pkg/adapters/http/v1"
 	"github.com/Pavel7004/WebShop/pkg/components"
+	"github.com/Pavel7004/WebShop/pkg/infra/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,12 +14,12 @@ type Server struct {
 	v1 *v1.Handler
 }
 
-func New(shop components.Shop) *Server {
+func New(shop components.Shop, cfg *config.Config) *Server {
 	server := new(Server)
 
 	server.router = gin.New()
 	server.isRunning = false
-	server.v1 = v1.New(shop)
+	server.v1 = v1.New(shop, cfg)
 
 	server.prepareRouter()
 

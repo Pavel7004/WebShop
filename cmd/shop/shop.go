@@ -7,6 +7,7 @@ import (
 	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo"
 	"github.com/Pavel7004/WebShop/pkg/adapters/http"
 	"github.com/Pavel7004/WebShop/pkg/components/shop"
+	"github.com/Pavel7004/WebShop/pkg/infra/config"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -18,17 +19,23 @@ import (
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 
-	closer := InitTracing()
+	closer := initTracing()
 	defer closer.Close()
+
+	cfg, err := config.Get()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to read config")
+		return
+	}
 
 	db := mongo.New()
 
 	shop := shop.New(db)
-	server := http.New(shop)
+	server := http.New(shop, cfg)
 
 	log.Info().Msg("Starting server")
 	if err := server.Run(); err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Msg("Server error")
 	}
 }
 

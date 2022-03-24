@@ -3,16 +3,19 @@ package v1
 import (
 	"github.com/Pavel7004/WebShop/pkg/components"
 	"github.com/Pavel7004/WebShop/pkg/domain"
+	"github.com/Pavel7004/WebShop/pkg/infra/config"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
 	shop components.Shop
+	cfg  *config.Config
 }
 
-func New(shop components.Shop) *Handler {
+func New(shop components.Shop, cfg *config.Config) *Handler {
 	return &Handler{
 		shop: shop,
+		cfg:  cfg,
 	}
 }
 
