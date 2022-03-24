@@ -21,6 +21,7 @@ type DB struct {
 	client *mongo.Client
 
 	collectionItems *mongo.Collection
+	collectionUsers *mongo.Collection
 }
 
 var (
@@ -40,6 +41,7 @@ func New() *DB {
 
 	db.client = client
 	db.collectionItems = client.Database("shop").Collection("items")
+	db.collectionUsers = client.Database("shop").Collection("users")
 
 	return db
 }
@@ -85,6 +87,36 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 	}
 
 	return item, nil
+}
+
+func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest) (string, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	res, err := db.collectionUsers.InsertOne(ctx, bson.M{
+		"name":       user.Name,
+		"email":      user.Email,
+		"phone":      user.Phone,
+		"created_at": time.Now(),
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	resStr, ok := res.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return "", ErrInvalidObjectType
+	}
+
+	resultId := resStr.Hex()
+
+	span.SetTag("result_id", resultId)
+
+	return resultId, nil
 }
 
 func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string, error) {
