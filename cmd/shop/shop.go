@@ -39,7 +39,7 @@ func main() {
 	}
 }
 
-func InitTracing() io.Closer {
+func initTracing() io.Closer {
 	cfg := jaegercfg.Configuration{
 		ServiceName: "WebShop",
 		Sampler: &jaegercfg.SamplerConfig{
