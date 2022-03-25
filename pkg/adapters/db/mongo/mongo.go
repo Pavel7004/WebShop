@@ -24,10 +24,6 @@ type DB struct {
 	collectionUsers *mongo.Collection
 }
 
-var (
-	ErrInvalidObjectType = errors.New("Returned object is not ObjectID")
-)
-
 func New() *DB {
 	db := new(DB)
 
@@ -101,7 +97,7 @@ func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest
 
 	obj, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return "", ErrInvalidObjectType
+		return "", domain.ErrInvalidId
 	}
 
 	span.SetTag("result_id", obj.Hex())
@@ -135,7 +131,7 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 
 	obj, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return "", ErrInvalidObjectType
+		return "", domain.ErrInvalidId
 	}
 
 	span.SetTag("result_id", obj.Hex())
