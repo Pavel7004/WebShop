@@ -48,7 +48,7 @@ func (h *Handler) GetItem(c *gin.Context) {
 // @Failure      400  {object}  domain.Error
 // @Failure      404  {object}  domain.Error
 // @Failure      500  {object}  domain.Error
-// @Router       /shop/v1/item [post]
+// @Router       /shop/v1/item/new [post]
 func (h *Handler) AddItem(c *gin.Context) {
 	span, ctx := tracing.StartSpanFromContext(context.Background())
 	defer span.Finish()
