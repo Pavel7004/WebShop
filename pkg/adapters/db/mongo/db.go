@@ -20,7 +20,7 @@ var _ db.DB = (*DB)(nil)
 
 type DB struct {
 	client *mongo.Client
-	cfg    config.Config
+	cfg    config.MongoCfg
 
 	collectionItems *mongo.Collection
 	collectionUsers *mongo.Collection
@@ -38,7 +38,7 @@ func New(cfg config.Config) *DB {
 	}
 
 	db.client = client
-	db.cfg = cfg
+	db.cfg = cfg.Mongo
 	db.collectionItems = client.Database("shop").Collection("items")
 	db.collectionUsers = client.Database("shop").Collection("users")
 
