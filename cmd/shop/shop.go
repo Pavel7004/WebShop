@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	db := mongo.New()
+	db := mongo.New(cfg)
 
 	shop := shop.New(db)
 	server := http.New(shop, cfg)
