@@ -58,3 +58,21 @@ func (s *Shop) GetRecentlyAddedItems(ctx context.Context, period time.Duration) 
 
 	return s.db.GetRecentlyAddedItems(ctx, period)
 }
+
+func (s *Shop) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest) (string, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	span.SetTag("user_request", *user)
+
+	return s.db.RegisterUser(ctx, user)
+}
+
+func (s *Shop) GetUserById(ctx context.Context, id string) (*domain.User, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	span.SetTag("id", id)
+
+	return s.db.GetUserById(ctx, id)
+}
