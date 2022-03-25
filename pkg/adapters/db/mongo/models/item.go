@@ -9,6 +9,7 @@ import (
 
 type Item struct {
 	ID          primitive.ObjectID `bson:"_id"`
+	OwnerID     primitive.ObjectID `bson:"owner_id"`
 	Name        string             `bson:"name"`
 	Description string             `bson:"desc"`
 	Price       float64            `bson:"price"`
@@ -18,6 +19,7 @@ type Item struct {
 func (it *Item) ConvertToDomain() *domain.Item {
 	return &domain.Item{
 		ID:          it.ID.Hex(),
+		OwnerID:     it.OwnerID.Hex(),
 		Name:        it.Name,
 		Description: it.Description,
 		Price:       it.Price,
