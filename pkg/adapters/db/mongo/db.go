@@ -3,8 +3,12 @@ package mongo
 import (
 	"context"
 
+	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/adapters/db"
+	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
+	"github.com/Pavel7004/WebShop/pkg/domain"
 	"github.com/Pavel7004/WebShop/pkg/infra/config"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -48,4 +52,25 @@ func (db *DB) Close() error {
 	defer cancel()
 
 	return db.client.Disconnect(ctx)
+}
+
+func (db *DB) findItems(ctx context.Context, filter interface{}) ([]*domain.Item, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
+	defer cancel()
+
+	cur, err := db.collectionItems.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var results []models.Item
+	if err := cur.All(ctx, &results); err != nil {
+		return nil, err
+	}
+
+	return models.ConvertItemsToDomain(results), nil
 }

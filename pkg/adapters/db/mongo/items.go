@@ -80,21 +80,7 @@ func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.
 	span.SetTag("from", from)
 	span.SetTag("to", to)
 
-	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
-	defer cancel()
-
-	cur, err := db.collectionItems.Find(ctx, bson.M{"price": bson.M{"$gte": from, "$lte": to}})
-	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
-
-	var results []models.Item
-	if err := cur.All(ctx, &results); err != nil {
-		return nil, err
-	}
-
-	return models.ConvertItemsToDomain(results), nil
+	return db.findItems(ctx, bson.M{"price": bson.M{"$gte": from, "$lte": to}})
 }
 
 func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) ([]*domain.Item, error) {
@@ -105,19 +91,5 @@ func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) (
 
 	timeBound := time.Now().Add(-period)
 
-	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
-	defer cancel()
-
-	cur, err := db.collectionItems.Find(ctx, bson.M{"created_at": bson.M{"$gte": timeBound}})
-	if err != nil {
-		return nil, err
-	}
-	defer cur.Close(ctx)
-
-	var results []models.Item
-	if err := cur.All(ctx, &results); err != nil {
-		return nil, err
-	}
-
-	return models.ConvertItemsToDomain(results), nil
+	return db.findItems(ctx, bson.M{"created_at": bson.M{"$gte": timeBound}})
 }
