@@ -22,7 +22,7 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 		return "", domain.ErrInvalidId
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
 	res, err := db.collectionItems.InsertOne(ctx, bson.M{
@@ -53,15 +53,15 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 
 	span.SetTag("item_id", id)
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, domain.ErrInvalidId
 	}
 
 	span.SetTag("object_id", objectID)
+
+	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
+	defer cancel()
 
 	var result models.Item
 	if err := db.collectionItems.FindOne(ctx, bson.M{"_id": objectID}).Decode(&result); err != nil {
@@ -82,7 +82,7 @@ func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.
 	span.SetTag("from", from)
 	span.SetTag("to", to)
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
 	cur, err := db.collectionItems.Find(ctx, bson.M{"price": bson.M{"$gte": from, "$lte": to}})
@@ -105,10 +105,10 @@ func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) (
 
 	span.SetTag("period", period.String())
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
 	timeBound := time.Now().Add(-period)
+
+	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
+	defer cancel()
 
 	cur, err := db.collectionItems.Find(ctx, bson.M{"created_at": bson.M{"$gte": timeBound}})
 	if err != nil {
