@@ -41,7 +41,7 @@ func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest
 	return obj.Hex(), nil
 }
 
-func (db *DB) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+func (db *DB) GetUserById(ctx context.Context, id string) (*domain.User, error) {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
