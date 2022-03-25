@@ -58,8 +58,6 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 		return nil, domain.ErrInvalidId
 	}
 
-	span.SetTag("object_id", objectID)
-
 	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 

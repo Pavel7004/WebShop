@@ -52,8 +52,6 @@ func (db *DB) GetUserByID(ctx context.Context, id string) (*domain.User, error) 
 		return nil, domain.ErrInvalidId
 	}
 
-	span.SetTag("object_id", objectID)
-
 	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
