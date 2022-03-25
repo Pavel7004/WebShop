@@ -66,3 +66,17 @@ func (db *DB) GetUserById(ctx context.Context, id string) (*domain.User, error) 
 
 	return result.ConvertToDomain(), nil
 }
+
+func (db *DB) GetItemsByOwnerId(ctx context.Context, id string) ([]*domain.Item, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	span.SetTag("owner_id", id)
+
+	obj, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, domain.ErrInvalidId
+	}
+
+	return db.findItems(ctx, bson.M{"owner_id": obj})
+}
