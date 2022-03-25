@@ -66,3 +66,30 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 
 	c.JSON(200, id)
 }
+
+// GetItemsByOwnerId godoc
+// @Summary     Get items owned by 'user_id'
+// @Description	Get all items that were created by user
+// @Tags        Users
+// @Produce     json
+// @Success      200  {object}  []domain.Item
+// @Failure      400  {object}  domain.Error
+// @Failure      404  {object}  domain.Error
+// @Failure      500  {object}  domain.Error
+// @Router       /shop/v1/user/{user_id}/items [get]
+func (h *Handler) GetItemsByOwnerId(c *gin.Context) {
+	span, ctx := tracing.StartSpanFromContext(context.Background())
+	defer span.Finish()
+
+	id := c.Param("user_id")
+
+	span.SetTag("user_id", id)
+
+	items, err := h.shop.GetItemsByOwnerId(ctx, id)
+	if err != nil {
+		h.SendError(c, err)
+		return
+	}
+
+	c.JSON(200, items)
+}

@@ -76,3 +76,12 @@ func (s *Shop) GetUserById(ctx context.Context, id string) (*domain.User, error)
 
 	return s.db.GetUserById(ctx, id)
 }
+
+func (s *Shop) GetItemsByOwnerId(ctx context.Context, id string) ([]*domain.Item, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	span.SetTag("id", id)
+
+	return s.db.GetItemsByOwnerId(ctx, id)
+}
