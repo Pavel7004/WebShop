@@ -99,16 +99,14 @@ func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest
 		return "", err
 	}
 
-	resStr, ok := res.InsertedID.(primitive.ObjectID)
+	obj, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
 		return "", ErrInvalidObjectType
 	}
 
-	resultId := resStr.Hex()
+	span.SetTag("result_id", obj.Hex())
 
-	span.SetTag("result_id", resultId)
-
-	return resultId, nil
+	return obj.Hex(), nil
 }
 
 func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string, error) {
