@@ -2,12 +2,12 @@ package mongo
 
 import (
 	"context"
-	"time"
 
 	"github.com/Pavel7004/WebShop/pkg/adapters/db"
 	"github.com/Pavel7004/WebShop/pkg/infra/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var _ db.DB = (*DB)(nil)
@@ -23,11 +23,15 @@ type DB struct {
 func New(cfg *config.Config) *DB {
 	db := new(DB)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.Mongo.Timeout)
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Mongo.Uri))
 	if err != nil {
+		panic(err)
+	}
+
+	if err := client.Ping(context.Background(), readpref.Primary()); err != nil {
 		panic(err)
 	}
 
@@ -40,7 +44,7 @@ func New(cfg *config.Config) *DB {
 }
 
 func (db *DB) Close() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), db.cfg.Timeout)
 	defer cancel()
 
 	return db.client.Disconnect(ctx)
