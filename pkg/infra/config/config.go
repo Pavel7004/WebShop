@@ -7,7 +7,8 @@ import (
 )
 
 type MongoCfg struct {
-	Uri string `mapstructure:"mongo_uri"`
+	Uri     string        `mapstructure:"mongo_uri"`
+	Timeout time.Duration `mapstructure:"mongo_timeout"`
 }
 
 type Config struct {
@@ -19,6 +20,7 @@ func Get() (*Config, error) {
 	config := new(Config)
 
 	viper.SetDefault("mongo_uri", "mongodb://localhost:27017")
+	viper.SetDefault("mongo_timeout", "10s")
 
 	viper.SetDefault("recent_items_period", "72h")
 
