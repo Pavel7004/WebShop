@@ -78,15 +78,7 @@ func (db *DB) GetItemById(ctx context.Context, id string) (*domain.Item, error) 
 		return nil, err
 	}
 
-	item := &domain.Item{
-		ID:          result.ID.Hex(),
-		Name:        result.Name,
-		Description: result.Description,
-		Price:       result.Price,
-		CreatedAt:   result.CreatedAt,
-	}
-
-	return item, nil
+	return result.ConvertToDomain(), nil
 }
 
 func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest) (string, error) {
