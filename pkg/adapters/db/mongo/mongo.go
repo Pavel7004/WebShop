@@ -113,11 +113,17 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
+	ownerId, err := primitive.ObjectIDFromHex(item.OwnerID)
+	if err != nil {
+		return "", domain.ErrInvalidId
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	res, err := db.collectionItems.InsertOne(ctx, bson.M{
 		"name":        item.Name,
+		"owner_id":    ownerId,
 		"price":       item.Price,
 		"description": item.Description,
 		"created_at":  time.Now(),
@@ -127,16 +133,14 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 		return "", err
 	}
 
-	resStr, ok := res.InsertedID.(primitive.ObjectID)
+	obj, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
 		return "", ErrInvalidObjectType
 	}
 
-	resultId := resStr.Hex()
+	span.SetTag("result_id", obj.Hex())
 
-	span.SetTag("result_id", resultId)
-
-	return resultId, nil
+	return obj.Hex(), nil
 }
 
 func (db *DB) GetItemsByPrice(ctx context.Context, from, to float64) ([]*domain.Item, error) {
