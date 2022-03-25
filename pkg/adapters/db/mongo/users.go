@@ -17,7 +17,7 @@ func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
 	res, err := db.collectionUsers.InsertOne(ctx, bson.M{
@@ -54,7 +54,7 @@ func (db *DB) GetUserByID(ctx context.Context, id string) (*domain.User, error) 
 
 	span.SetTag("object_id", objectID)
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
 	var result models.User
