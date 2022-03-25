@@ -39,8 +39,8 @@ func (s *Server) prepareRouter() {
 		v1.GET("/items", s.v1.GetItems)                     // -
 		v1.GET("/items/recent", s.v1.GetRecentlyAddedItems) // -
 
-		v1.GET("/user/:user_id", s.v1.GetUser) // -
-		v1.GET("/user/new", s.v1.RegisterUser) // -
+		v1.GET("/user/:user_id", s.v1.GetUser)  // -
+		v1.POST("/user/new", s.v1.RegisterUser) // -
 	}
 
 	// query ?a=1&b=2 <- GET, DELETE не имеют тела
