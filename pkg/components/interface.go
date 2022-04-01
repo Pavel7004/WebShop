@@ -16,4 +16,5 @@ type Shop interface {
 
 	RegisterUser(ctx context.Context, user *domain.RegisterUserRequest) (string, error)
 	GetUserById(ctx context.Context, id string) (*domain.User, error)
+	GetRecentlyAddedUsers(ctx context.Context, count int64) ([]*domain.User, error)
 }

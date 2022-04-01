@@ -85,3 +85,12 @@ func (s *Shop) GetItemsByOwnerId(ctx context.Context, id string) ([]*domain.Item
 
 	return s.db.GetItemsByOwnerId(ctx, id)
 }
+
+func (s *Shop) GetRecentlyAddedUsers(ctx context.Context, count int64) ([]*domain.User, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	span.SetTag("count", count)
+
+	return s.db.GetRecentlyAddedUsers(ctx, count)
+}
