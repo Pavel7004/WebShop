@@ -1,5 +1,17 @@
 package http
 
+// @title           WebShop API
+// @version         0.1
+// @description     This is an API for online store
+
+// @contact.name   Kovalev Pavel
+// @contact.email  kovalev5690@gmail.com
+
+// @license.name   GPL-3.0
+// @license.url    https://www.gnu.org/licenses/gpl-3.0.html
+
+// @host      localhost:8080
+
 import (
 	v1 "github.com/Pavel7004/WebShop/pkg/adapters/http/v1"
 	"github.com/Pavel7004/WebShop/pkg/components"
@@ -42,6 +54,7 @@ func (s *Server) prepareRouter() {
 		v1.GET("/user/:user_id", s.v1.GetUser)                 // -
 		v1.POST("/user/new", s.v1.RegisterUser)                // -
 		v1.GET("/user/:user_id/items", s.v1.GetItemsByOwnerId) // -
+		v1.GET("/users/recent", s.v1.GetRecentlyAddedUsers)    // -
 	}
 
 	// query ?a=1&b=2 <- GET, DELETE не имеют тела
