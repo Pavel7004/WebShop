@@ -26,10 +26,11 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 	defer cancel()
 
 	res, err := db.collectionItems.InsertOne(ctx, bson.M{
-		"name":        item.Name,
 		"owner_id":    ownerId,
+		"name":        item.Name,
 		"price":       item.Price,
 		"description": item.Description,
+		"category":    item.Category,
 		"created_at":  time.Now(),
 	})
 
