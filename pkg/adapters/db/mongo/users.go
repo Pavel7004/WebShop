@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest) (string, error) {
@@ -65,6 +66,30 @@ func (db *DB) GetUserById(ctx context.Context, id string) (*domain.User, error) 
 	}
 
 	return result.ConvertToDomain(), nil
+}
+
+func (db *DB) GetRecentlyAddedUsers(ctx context.Context, count int64) ([]*domain.User, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	span.SetTag("count", count)
+
+	options := options.Find()
+	options.SetSort(bson.M{"$natural": -1})
+	options.SetLimit(count)
+
+	cur, err := db.collectionUsers.Find(ctx, bson.M{}, options)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var result []models.User
+	if err := cur.All(ctx, &result); err != nil {
+		return nil, err
+	}
+
+	return models.ConvertUsersToDomain(result), nil
 }
 
 func (db *DB) GetItemsByOwnerId(ctx context.Context, id string) ([]*domain.Item, error) {

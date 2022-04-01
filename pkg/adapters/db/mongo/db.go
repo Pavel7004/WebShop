@@ -8,7 +8,6 @@ import (
 	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
 	"github.com/Pavel7004/WebShop/pkg/domain"
 	"github.com/Pavel7004/WebShop/pkg/infra/config"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
