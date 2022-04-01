@@ -93,3 +93,26 @@ func (h *Handler) GetItemsByOwnerId(c *gin.Context) {
 
 	c.JSON(200, items)
 }
+
+// GetRecentlyAddedUsers godoc
+// @Summary     Get recenly added users
+// @Description	Get last 2 added users
+// @Tags        Users
+// @Produce     json
+// @Success      200  {object}  []domain.User
+// @Failure      400  {object}  domain.Error
+// @Failure      404  {object}  domain.Error
+// @Failure      500  {object}  domain.Error
+// @Router       /shop/v1/users/recent [get]
+func (h *Handler) GetRecentlyAddedUsers(c *gin.Context) {
+	span, ctx := tracing.StartSpanFromContext(context.Background())
+	defer span.Finish()
+
+	users, err := h.shop.GetRecentlyAddedUsers(ctx, h.cfg.RecentUsersCount)
+	if err != nil {
+		h.SendError(c, err)
+		return
+	}
+
+	c.JSON(200, users)
+}
