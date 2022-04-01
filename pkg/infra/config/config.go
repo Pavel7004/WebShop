@@ -14,6 +14,7 @@ type MongoCfg struct {
 type Config struct {
 	Mongo             MongoCfg      `mapstructure:",squash"`
 	RecentItemsPeriod time.Duration `mapstructure:"recent_items_period"`
+	RecentUsersCount  int64         `mapstructure:"recent_users_count"`
 }
 
 func Get() (*Config, error) {
@@ -23,6 +24,7 @@ func Get() (*Config, error) {
 	viper.SetDefault("mongo_timeout", "10s")
 
 	viper.SetDefault("recent_items_period", "72h")
+	viper.SetDefault("recent_users_count", 2)
 
 	viper.AutomaticEnv()
 
