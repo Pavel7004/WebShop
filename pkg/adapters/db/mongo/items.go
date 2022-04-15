@@ -17,22 +17,15 @@ func (db *DB) AddItem(ctx context.Context, item *domain.AddItemRequest) (string,
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
-	ownerId, err := primitive.ObjectIDFromHex(item.OwnerID)
-	if err != nil {
-		return "", domain.ErrInvalidId
-	}
-
 	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
-	res, err := db.collectionItems.InsertOne(ctx, bson.M{
-		"owner_id":    ownerId,
-		"name":        item.Name,
-		"price":       item.Price,
-		"description": item.Description,
-		"category":    item.Category,
-		"created_at":  time.Now(),
-	})
+	it, err := models.ConvertItemFromDomainRequest(item)
+	if err != nil {
+		return "", err
+	}
+
+	res, err := db.collectionItems.InsertOne(ctx, it)
 
 	if err != nil {
 		return "", err
