@@ -98,10 +98,10 @@ func (db *DB) GetItemsByOwnerId(ctx context.Context, id string) ([]*domain.Item,
 
 	span.SetTag("owner_id", id)
 
-	obj, err := primitive.ObjectIDFromHex(id)
+	ownerID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, domain.ErrInvalidId
 	}
 
-	return db.findItems(ctx, bson.M{"owner_id": obj})
+	return db.findItems(ctx, bson.M{"owner_id": ownerID})
 }
