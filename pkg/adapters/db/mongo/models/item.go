@@ -12,8 +12,29 @@ type Item struct {
 	OwnerID     primitive.ObjectID `bson:"owner_id"`
 	Name        string             `bson:"name"`
 	Description string             `bson:"desc"`
+	Category    string             `bson:"category"`
 	Price       float64            `bson:"price"`
 	CreatedAt   time.Time          `bson:"created_at"`
+}
+
+func ConvertItemFromDomainRequest(it *domain.AddItemRequest) (*Item, error) {
+	if it == nil {
+		return nil, domain.ErrItemNotFound // TODO: fix no item error
+	}
+
+	ownerID, err := primitive.ObjectIDFromHex(it.OwnerID)
+	if err != nil {
+		return nil, domain.ErrInvalidId
+	}
+
+	return &Item{
+		OwnerID:     ownerID,
+		Name:        it.Name,
+		Description: it.Description,
+		Category:    it.Category,
+		Price:       it.Price,
+		CreatedAt:   time.Now(),
+	}, nil
 }
 
 func (it *Item) ConvertToDomain() *domain.Item {
@@ -22,6 +43,7 @@ func (it *Item) ConvertToDomain() *domain.Item {
 		OwnerID:     it.OwnerID.Hex(),
 		Name:        it.Name,
 		Description: it.Description,
+		Category:    it.Category,
 		Price:       it.Price,
 		CreatedAt:   it.CreatedAt,
 	}
