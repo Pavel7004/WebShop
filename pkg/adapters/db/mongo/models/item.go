@@ -28,6 +28,7 @@ func ConvertItemFromDomainRequest(it *domain.AddItemRequest) (*Item, error) {
 	}
 
 	return &Item{
+		ID:          primitive.NewObjectID(),
 		OwnerID:     ownerID,
 		Name:        it.Name,
 		Description: it.Description,
