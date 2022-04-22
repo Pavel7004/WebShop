@@ -15,6 +15,7 @@ type Item struct {
 	Category    string             `bson:"category"`
 	Price       float64            `bson:"price"`
 	CreatedAt   time.Time          `bson:"created_at"`
+	Quantity    uint64             `bson:"quantity"`
 }
 
 func ConvertItemFromDomainRequest(it *domain.AddItemRequest) (*Item, error) {
@@ -35,6 +36,7 @@ func ConvertItemFromDomainRequest(it *domain.AddItemRequest) (*Item, error) {
 		Category:    it.Category,
 		Price:       it.Price,
 		CreatedAt:   time.Now(),
+		Quantity:    it.Quantity,
 	}, nil
 }
 
@@ -47,6 +49,7 @@ func (it *Item) ConvertToDomain() *domain.Item {
 		Category:    it.Category,
 		Price:       it.Price,
 		CreatedAt:   it.CreatedAt,
+		Quantity:    it.Quantity,
 	}
 }
 

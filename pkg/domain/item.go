@@ -10,6 +10,7 @@ type Item struct {
 	Category    string    `json:"category"`
 	Price       float64   `json:"price"`
 	CreatedAt   time.Time `json:"created_at"`
+	Quantity    uint64    `json:"quantity"`
 }
 
 type AddItemRequest struct {
@@ -18,4 +19,5 @@ type AddItemRequest struct {
 	Description string  `json:"desc"`
 	Category    string  `json:"category"`
 	Price       float64 `json:"price"`
+	Quantity    uint64  `json:"quantity"`
 }
