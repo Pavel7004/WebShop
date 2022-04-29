@@ -21,3 +21,12 @@ type AddItemRequest struct {
 	Price       float64 `json:"price"`
 	Quantity    uint64  `json:"quantity"`
 }
+
+type UpdateItemRequest struct {
+	OwnerID     *string  `json:"owner_id"`
+	Name        *string  `json:"name"`
+	Description *string  `json:"desc"`
+	Category    *string  `json:"category"`
+	Price       *float64 `json:"price"`
+	Quantity    *uint64  `json:"quantity"`
+}

@@ -142,3 +142,41 @@ func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
 
 	c.JSON(200, items)
 }
+
+// UpdateItem godoc
+// @Summary     Update item info
+// @Description	Update item entry
+// @Tags        Items
+// @Accept		json
+// @Produce     json
+// @Param       req	  	body  domain.UpdateItemRequest	true  "Request to update info in item"
+// @Param       id		query	string	true  "Item id"
+// @Success      200  {object}  int
+// @Failure      400  {object}  domain.Error
+// @Failure      404  {object}  domain.Error
+// @Failure      500  {object}  domain.Error
+// @Router       /shop/v1/item/edit [post]
+func (h *Handler) UpdateItem(c *gin.Context) {
+	span, ctx := tracing.StartSpanFromContext(context.Background())
+	defer span.Finish()
+
+	id := c.Query("id")
+
+	span.SetTag("item_id", id)
+
+	var req domain.UpdateItemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		h.SendError(c, err)
+		return
+	}
+
+	span.SetTag("item_request", req)
+
+	modCount, err := h.shop.UpdateItem(ctx, id, &req)
+	if err != nil {
+		h.SendError(c, err)
+		return
+	}
+
+	c.JSON(200, modCount)
+}

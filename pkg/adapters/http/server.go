@@ -48,6 +48,7 @@ func (s *Server) prepareRouter() {
 	{
 		v1.GET("/item/:item_id", s.v1.GetItem)              // -
 		v1.POST("/item/new", s.v1.AddItem)                  // -
+		v1.POST("/item/edit", s.v1.UpdateItem)              // -
 		v1.GET("/items", s.v1.GetItems)                     // -
 		v1.GET("/items/recent", s.v1.GetRecentlyAddedItems) // -
 

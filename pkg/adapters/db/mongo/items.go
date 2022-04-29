@@ -87,3 +87,29 @@ func (db *DB) GetRecentlyAddedItems(ctx context.Context, period time.Duration) (
 
 	return db.findItems(ctx, bson.M{"created_at": bson.M{"$gte": timeBound}})
 }
+
+func (db *DB) UpdateItem(ctx context.Context, id string, in *domain.UpdateItemRequest) (int64, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	userID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return 0, domain.ErrInvalidId
+	}
+
+	req, err := models.ConvertUpdateReqToBSON(in)
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := db.collectionItems.UpdateOne(ctx, bson.M{"_id": userID}, req)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return 0, domain.ErrItemNotFound
+		}
+
+		return 0, err
+	}
+
+	return res.ModifiedCount, nil
+}

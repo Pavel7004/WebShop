@@ -4,6 +4,7 @@ var (
 	ErrItemNotFound = NewError(404, "item_not_found", "Item not found")
 	ErrInvalidId    = NewError(404, "invalid_id", "Can't parse id string")
 	ErrUserNotFound = NewError(404, "user_not_found", "User not found")
+	ErrNoUpdate     = NewError(404, "update_not_specified", "There are no updates")
 )
 
 type Error struct {

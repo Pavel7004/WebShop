@@ -94,3 +94,12 @@ func (s *Shop) GetRecentlyAddedUsers(ctx context.Context, count int64) ([]*domai
 
 	return s.db.GetRecentlyAddedUsers(ctx, count)
 }
+
+func (s *Shop) UpdateItem(ctx context.Context, id string, in *domain.UpdateItemRequest) (int64, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	span.SetTag("id", id)
+
+	return s.db.UpdateItem(ctx, id, in)
+}
