@@ -129,7 +129,7 @@ func (db *DB) GetItemsTotalCost(ctx context.Context, itemIDs []string) (float64,
 	}
 
 	items, err := db.findItems(ctx, bson.M{"items": bson.M{
-		"$in": iteitemObjIDs,
+		"$in": itemObjIDs,
 	}})
 	if err != nil {
 		return 0, err
