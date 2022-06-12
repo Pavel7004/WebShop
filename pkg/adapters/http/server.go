@@ -46,9 +46,9 @@ func (s *Server) Run() error {
 func (s *Server) prepareRouter() {
 	v1 := s.router.Group("/shop/v1")
 	{
-		v1.GET("/item/:item_id", s.v1.GetItem)              // -
-		v1.POST("/item/new", s.v1.AddItem)                  // -
-		v1.POST("/item/edit", s.v1.UpdateItem)              // -
+		v1.GET("/items/:item_id", s.v1.GetItem)             // -
+		v1.POST("/items/new", s.v1.AddItem)                 // -
+		v1.PUT("/items/:item_id", s.v1.UpdateItem)          // -
 		v1.GET("/items", s.v1.GetItems)                     // -
 		v1.GET("/items/recent", s.v1.GetRecentlyAddedItems) // -
 
@@ -56,6 +56,8 @@ func (s *Server) prepareRouter() {
 		v1.POST("/user/new", s.v1.RegisterUser)                // -
 		v1.GET("/user/:user_id/items", s.v1.GetItemsByOwnerId) // -
 		v1.GET("/users/recent", s.v1.GetRecentlyAddedUsers)    // -
+
+		v1.POST("/orders/new", s.v1.CreateOrder) // -
 	}
 
 	// query ?a=1&b=2 <- GET, DELETE не имеют тела
@@ -63,4 +65,5 @@ func (s *Server) prepareRouter() {
 	// {last_name: ..., surname: ..., balance: ..., date: ...}
 	// body x-www-form-urlencoded (a=1&b=2 in body) POST, PUT
 	// path /item/{item_id}
+	// browser saves GET queries to history; POST, PUT aren't saved
 }

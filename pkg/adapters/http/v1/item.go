@@ -19,7 +19,7 @@ import (
 // @Failure      400  {object}  domain.Error
 // @Failure      404  {object}  domain.Error
 // @Failure      500  {object}  domain.Error
-// @Router       /shop/v1/item/{item_id} [get]
+// @Router       /shop/v1/items/{item_id} [get]
 func (h *Handler) GetItem(c *gin.Context) {
 	span, ctx := tracing.StartSpanFromContext(context.Background())
 	defer span.Finish()
@@ -48,7 +48,7 @@ func (h *Handler) GetItem(c *gin.Context) {
 // @Failure      400  {object}  domain.Error
 // @Failure      404  {object}  domain.Error
 // @Failure      500  {object}  domain.Error
-// @Router       /shop/v1/item/new [post]
+// @Router       /shop/v1/items/new [post]
 func (h *Handler) AddItem(c *gin.Context) {
 	span, ctx := tracing.StartSpanFromContext(context.Background())
 	defer span.Finish()
@@ -149,18 +149,18 @@ func (h *Handler) GetRecentlyAddedItems(c *gin.Context) {
 // @Tags        Items
 // @Accept		json
 // @Produce     json
-// @Param       req	  	body  domain.UpdateItemRequest	true  "Request to update info in item"
-// @Param       id		query	string	true  "Item id"
+// @Param       req	  	body  	domain.UpdateItemRequest	true  "Request to update info in item"
+// @Param       item_id	path	string 						true  "Item id"
 // @Success      200  {object}  int
 // @Failure      400  {object}  domain.Error
 // @Failure      404  {object}  domain.Error
 // @Failure      500  {object}  domain.Error
-// @Router       /shop/v1/item/edit [post]
+// @Router       /shop/v1/items/{item_id} [put]
 func (h *Handler) UpdateItem(c *gin.Context) {
 	span, ctx := tracing.StartSpanFromContext(context.Background())
 	defer span.Finish()
 
-	id := c.Query("id")
+	id := c.Param("item_id")
 
 	span.SetTag("item_id", id)
 
