@@ -113,3 +113,32 @@ func (db *DB) UpdateItem(ctx context.Context, id string, in *domain.UpdateItemRe
 
 	return res.ModifiedCount, nil
 }
+
+func (db *DB) GetItemsTotalCost(ctx context.Context, itemIDs []string) (float64, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	itemObjIDs := make([]primitive.ObjectID, 0, len(itemIDs))
+	for _, id := range itemIDs {
+		obj, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return 0, domain.ErrInvalidId
+		}
+
+		itemObjIDs = append(itemObjIDs, obj)
+	}
+
+	items, err := db.findItems(ctx, bson.M{"items": bson.M{
+		"$in": iteitemObjIDs,
+	}})
+	if err != nil {
+		return 0, err
+	}
+
+	var result float64
+	for _, item := range items {
+		result += item.Price
+	}
+
+	return result, nil
+}
