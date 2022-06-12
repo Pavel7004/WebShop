@@ -19,8 +19,9 @@ type DB struct {
 	client *mongo.Client
 	cfg    *config.MongoCfg
 
-	collectionItems *mongo.Collection
-	collectionUsers *mongo.Collection
+	collectionItems  *mongo.Collection
+	collectionUsers  *mongo.Collection
+	collectionOrders *mongo.Collection
 }
 
 func New(cfg *config.Config) *DB {
@@ -42,6 +43,7 @@ func New(cfg *config.Config) *DB {
 	db.cfg = &cfg.Mongo
 	db.collectionItems = client.Database("shop").Collection("items")
 	db.collectionUsers = client.Database("shop").Collection("users")
+	db.collectionOrders = client.Database("shop").Collection("orders")
 
 	return db
 }

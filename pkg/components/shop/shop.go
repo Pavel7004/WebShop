@@ -103,3 +103,35 @@ func (s *Shop) UpdateItem(ctx context.Context, id string, in *domain.UpdateItemR
 
 	return s.db.UpdateItem(ctx, id, in)
 }
+
+func (s *Shop) CreateOrder(ctx context.Context, req *domain.CreateOrderRequest) (string, error) {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	return s.db.CreateOrder(ctx, req)
+}
+
+func (s *Shop) PayOrder(ctx context.Context, orderID string) error {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	modCount, err := s.db.UpdateOrder(ctx, orderID, domain.UpdateOrderRequest{
+		Status: &domain.PAID,
+	})
+	if err != nil {
+		return err
+	}
+
+	if modCount < 1 {
+		return domain.ErrOrderNotProcessed
+	}
+
+	return nil
+}
+
+func (s *Shop) ProcessOrder(ctx context.Context, orderID string) error {
+	span, ctx := tracing.StartSpanFromContext(ctx)
+	defer span.Finish()
+
+	return nil
+}

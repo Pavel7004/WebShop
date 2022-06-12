@@ -18,4 +18,8 @@ type Shop interface {
 	RegisterUser(ctx context.Context, user *domain.RegisterUserRequest) (string, error)
 	GetUserById(ctx context.Context, id string) (*domain.User, error)
 	GetRecentlyAddedUsers(ctx context.Context, count int64) ([]*domain.User, error)
+
+	CreateOrder(ctx context.Context, req *domain.CreateOrderRequest) (string, error)
+	PayOrder(ctx context.Context, orderID string) error
+	ProcessOrder(ctx context.Context, orderID string) error
 }
