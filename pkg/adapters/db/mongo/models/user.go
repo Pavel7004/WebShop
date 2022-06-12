@@ -13,6 +13,7 @@ type User struct {
 	Email     string             `bson:"email"`
 	Phone     string             `bson:"phone"`
 	CreatedAt time.Time          `bson:"created_at"`
+	Balance   uint64             `bson:"balance"`
 }
 
 func (user *User) ConvertToDomain() *domain.User {
@@ -22,6 +23,7 @@ func (user *User) ConvertToDomain() *domain.User {
 		Email:     user.Email,
 		Phone:     user.Phone,
 		CreatedAt: user.CreatedAt,
+		Balance:   user.Balance,
 	}
 }
 

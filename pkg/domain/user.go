@@ -8,6 +8,7 @@ type User struct {
 	Email     string    `json:"email"`
 	Phone     string    `json:"phone"`
 	CreatedAt time.Time `json:"created_at"`
+	Balance   uint64    `json:"balance"`
 }
 
 type RegisterUserRequest struct {

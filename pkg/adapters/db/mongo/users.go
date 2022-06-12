@@ -21,11 +21,12 @@ func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest
 	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
-	res, err := db.collectionUsers.InsertOne(ctx, bson.M{
+	res, err := db.collectionUsers.InsertOne(ctx, bson.M{ // TODO: Move user init to struct
 		"name":       user.Name,
 		"email":      user.Email,
 		"phone":      user.Phone,
 		"created_at": time.Now(),
+		"balance":    0,
 	})
 
 	if err != nil {
