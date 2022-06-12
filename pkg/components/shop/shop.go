@@ -108,6 +108,13 @@ func (s *Shop) CreateOrder(ctx context.Context, req *domain.CreateOrderRequest) 
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
+	total, err := s.db.GetItemsTotalCost(ctx, req.ItemIDs)
+	if err != nil {
+		return "", err
+	}
+
+	req.Total = total
+
 	return s.db.CreateOrder(ctx, req)
 }
 
