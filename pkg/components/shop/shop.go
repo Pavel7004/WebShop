@@ -140,5 +140,29 @@ func (s *Shop) ProcessOrder(ctx context.Context, orderID string) error {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
+	order, err := s.db.GetOrderInfo(ctx, orderID)
+	if err != nil {
+		return err
+	}
+
+	if order.Status == domain.CREATED {
+		return domain.ErrOrderNotPaid
+	}
+
+	if order.Status == domain.DELIVERED {
+		return domain.ErrOrderAlreadyDelivered
+	}
+
+	modCount, err := s.db.UpdateOrder(ctx, orderID, domain.UpdateOrderRequest{
+		Status: &domain.DELIVERED,
+	})
+	if err != nil {
+		return err
+	}
+
+	if modCount < 1 {
+		return domain.ErrOrderNotProcessed
+	}
+
 	return nil
 }

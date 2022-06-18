@@ -5,8 +5,9 @@ import "time"
 type StatusID string
 
 var (
-	CREATED StatusID = "created"
-	PAID    StatusID = "paid"
+	CREATED   StatusID = "created"
+	PAID      StatusID = "paid"
+	DELIVERED StatusID = "finished"
 )
 
 type Order struct {
