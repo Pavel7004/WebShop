@@ -21,6 +21,7 @@ type DB interface {
 	GetRecentlyAddedUsers(ctx context.Context, count int64) ([]*domain.User, error)
 
 	CreateOrder(ctx context.Context, req *domain.CreateOrderRequest) (string, error)
+	GetOrderInfo(ctx context.Context, id string) (*domain.Order, error)
 	UpdateOrder(ctx context.Context, id string, ord domain.UpdateOrderRequest) (int64, error)
 
 	Close() error
