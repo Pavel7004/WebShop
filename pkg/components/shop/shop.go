@@ -115,12 +115,16 @@ func (s *Shop) CreateOrder(ctx context.Context, req *domain.CreateOrderRequest) 
 
 	req.Total = total
 
+	span.SetTag("Total", total)
+
 	return s.db.CreateOrder(ctx, req)
 }
 
 func (s *Shop) PayOrder(ctx context.Context, orderID string) error {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
+
+	span.SetTag("orderID", orderID)
 
 	modCount, err := s.db.UpdateOrder(ctx, orderID, domain.UpdateOrderRequest{
 		Status: &domain.PAID,
@@ -133,6 +137,8 @@ func (s *Shop) PayOrder(ctx context.Context, orderID string) error {
 		return domain.ErrOrderNotProcessed
 	}
 
+	span.SetTag("mod_count", modCount)
+
 	return nil
 }
 
@@ -140,10 +146,14 @@ func (s *Shop) ProcessOrder(ctx context.Context, orderID string) error {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
+	span.SetTag("order_ID", orderID)
+
 	order, err := s.db.GetOrderInfo(ctx, orderID)
 	if err != nil {
 		return err
 	}
+
+	span.SetTag("order_status", string(order.Status))
 
 	if order.Status == domain.CREATED {
 		return domain.ErrOrderNotPaid
@@ -159,6 +169,8 @@ func (s *Shop) ProcessOrder(ctx context.Context, orderID string) error {
 	if err != nil {
 		return err
 	}
+
+	span.SetTag("mod_count", modCount)
 
 	if modCount < 1 {
 		return domain.ErrOrderNotProcessed
