@@ -13,7 +13,7 @@
 
 * Сборка программы
 #+begin_src sh
-make
+make build
 #+end_src
 
 * Запуск программы
