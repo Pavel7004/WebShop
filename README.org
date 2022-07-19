@@ -1,0 +1,22 @@
+#+TITLE: WebShop
+#+AUTHOR: Kovalev Pavel
+
+Сервер для веб-магазина.
+
+* Зависимости
+- Golang
+  #+begin_src sh
+# apt install golang  # For Ubuntu/Debian
+
+# pacman -S go        # For Arch/Manjaro
+  #+end_src
+
+* Сборка программы
+#+begin_src sh
+make
+#+end_src
+
+* Запуск программы
+#+begin_src sh
+./shop
+#+end_src
