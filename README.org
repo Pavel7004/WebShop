@@ -5,6 +5,7 @@
 
 * Зависимости
 - Golang
+
   #+begin_src sh
 # apt install golang  # For Ubuntu/Debian
 
