@@ -5,12 +5,11 @@
 
 * Зависимости
 - Golang
-
-  #+begin_src sh
+#+begin_src sh
 # apt install golang  # For Ubuntu/Debian
 
 # pacman -S go        # For Arch/Manjaro
-  #+end_src
+#+end_src
 
 * Сборка программы
 #+begin_src sh
