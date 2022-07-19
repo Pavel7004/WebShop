@@ -6,9 +6,9 @@
 * Зависимости
 - Golang
 #+begin_src sh
-# apt install golang  # For Ubuntu/Debian
+sudo apt install golang  # For Ubuntu/Debian
 
-# pacman -S go        # For Arch/Manjaro
+sudo pacman -S go        # For Arch/Manjaro
 #+end_src
 
 * Сборка программы
