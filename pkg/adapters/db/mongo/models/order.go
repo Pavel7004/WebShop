@@ -8,13 +8,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type OrderItem struct {
+	ID       primitive.ObjectID `bson:"item_id"`
+	Quantity uint64             `bson:"quantity"`
+}
+
 type Order struct {
-	ID         primitive.ObjectID   `bson:"_id"`
-	ItemIDs    []primitive.ObjectID `bson:"item_ids"`
-	Total      float64              `bson:"total"`
-	CreatedAt  time.Time            `bson:"created_at"`
-	Status     domain.StatusID      `bson:"status"`
-	CustomerID primitive.ObjectID   `bson:"customer_id"`
+	Items      []OrderItem        `bson:"items"`
+	CustomerID primitive.ObjectID `bson:"customer_id"`
+
+	ID        primitive.ObjectID `bson:"_id"`
+	Total     float64            `bson:"total"`
+	CreatedAt time.Time          `bson:"created_at"`
+	Status    domain.StatusID    `bson:"status"`
 }
 
 // `bson:"-"`
@@ -25,14 +31,17 @@ func ConvertAddOrderRequestFromDomain(ord *domain.CreateOrderRequest) (*Order, e
 		return nil, domain.ErrNoOrder
 	}
 
-	itemIDs := make([]primitive.ObjectID, 0, len(ord.ItemIDs))
-	for _, it := range ord.ItemIDs {
-		obj, err := primitive.ObjectIDFromHex(it)
+	itemIDs := make([]OrderItem, 0, len(ord.Items))
+	for _, it := range ord.Items {
+		obj, err := primitive.ObjectIDFromHex(it.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		itemIDs = append(itemIDs, obj)
+		itemIDs = append(itemIDs, OrderItem{
+			ID:       obj,
+			Quantity: it.Quantity,
+		})
 	}
 
 	customer, err := primitive.ObjectIDFromHex(ord.CustomerID)
@@ -41,11 +50,12 @@ func ConvertAddOrderRequestFromDomain(ord *domain.CreateOrderRequest) (*Order, e
 	}
 
 	return &Order{
+		Items:      itemIDs,
+		CustomerID: customer,
 		ID:         primitive.NewObjectID(),
-		ItemIDs:    itemIDs,
+		Total:      0,
 		CreatedAt:  time.Now(),
 		Status:     domain.CREATED,
-		CustomerID: customer,
 	}, nil
 }
 
@@ -56,15 +66,18 @@ func ConvertUpdateOrderReqToBSON(ord *domain.UpdateOrderRequest) (bson.M, error)
 
 	req := bson.M{}
 
-	if ord.ItemIDs != nil {
-		itemIDs := make([]primitive.ObjectID, 0, len(*ord.ItemIDs))
-		for _, it := range *ord.ItemIDs {
-			obj, err := primitive.ObjectIDFromHex(it)
+	if ord.Items != nil {
+		itemIDs := make([]OrderItem, 0, len(*ord.Items))
+		for _, it := range *ord.Items {
+			obj, err := primitive.ObjectIDFromHex(it.ID)
 			if err != nil {
 				return nil, err
 			}
 
-			itemIDs = append(itemIDs, obj)
+			itemIDs = append(itemIDs, OrderItem{
+				ID:       obj,
+				Quantity: it.Quantity,
+			})
 		}
 
 		req["item_ids"] = itemIDs
@@ -79,14 +92,18 @@ func ConvertUpdateOrderReqToBSON(ord *domain.UpdateOrderRequest) (bson.M, error)
 }
 
 func (o *Order) ConvertToDomain() *domain.Order {
-	itemIDs := make([]string, 0, len(o.ItemIDs))
-	for _, id := range o.ItemIDs {
-		itemIDs = append(itemIDs, id.Hex())
+	items := make([]domain.OrderItem, 0, len(o.Items))
+	for _, it := range o.Items {
+		items = append(items, domain.OrderItem{
+			ID:       it.ID.Hex(),
+			Quantity: it.Quantity,
+		})
 	}
 
 	return &domain.Order{
 		ID:         o.ID.Hex(),
-		ItemIDs:    itemIDs,
+		Total:      o.Total,
+		Items:      items,
 		CreatedAt:  o.CreatedAt,
 		Status:     o.Status,
 		CustomerID: o.CustomerID.Hex(),

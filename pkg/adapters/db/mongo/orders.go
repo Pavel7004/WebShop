@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (db *DB) CreateOrder(ctx context.Context, reqDom *domain.CreateOrderRequest) (string, error) {
@@ -20,6 +21,47 @@ func (db *DB) CreateOrder(ctx context.Context, reqDom *domain.CreateOrderRequest
 	if err != nil {
 		return "", err
 	}
+
+	ids := make([]primitive.ObjectID, 0, len(req.Items))
+	for _, item := range req.Items {
+		ids = append(ids, item.ID)
+	}
+
+	opts := &options.AggregateOptions{
+		Let: bson.M{
+			"items": req.Items,
+		},
+	}
+
+	cur, err := db.collectionItems.Aggregate(ctx, mongo.Pipeline{
+		{primitive.E{
+			Key: "$group",
+			Value: bson.M{
+				"_id": bson.M{
+					"$in": ids,
+				},
+				"total": bson.M{
+					"$sum": bson.M{
+						"$multiply": bson.A{
+							"$price",
+							"$$items.$_id",
+						},
+					},
+				},
+			},
+		}},
+	}, opts)
+	if err != nil {
+		return "", err
+	}
+
+	var total bson.M
+	if err := cur.All(ctx, total); err != nil {
+		return "", err
+	}
+	cur.Close(ctx)
+
+	req.Total = total["total"].(float64)
 
 	res, err := db.collectionOrders.InsertOne(ctx, req)
 	if err != nil {
