@@ -23,34 +23,53 @@ func (db *DB) CreateOrder(ctx context.Context, reqDom *domain.CreateOrderRequest
 	}
 
 	ids := make([]primitive.ObjectID, 0, len(req.Items))
+	qty := make(map[string]uint64, len(req.Items))
 	for _, item := range req.Items {
 		ids = append(ids, item.ID)
+		qty[item.ID.Hex()] = item.Quantity
 	}
 
-	opts := &options.AggregateOptions{
-		Let: bson.M{
-			"items": req.Items,
+	opts := new(options.AggregateOptions)
+	opts.SetLet(bson.M{
+		"items": qty,
+	})
+
+	match := bson.D{primitive.E{
+		Key: "$match",
+		Value: bson.M{
+			"_id": bson.M{"$in": ids},
+		},
+	}}
+
+	itemsQty := bson.M{
+		"$getField": bson.M{
+			"$concat": bson.A{
+				bson.M{
+					"$getField": bson.A{
+						"$_id",
+					},
+				},
+				".1",
+			},
 		},
 	}
 
-	cur, err := db.collectionItems.Aggregate(ctx, mongo.Pipeline{
-		{primitive.E{
-			Key: "$group",
-			Value: bson.M{
-				"_id": bson.M{
-					"$in": ids,
-				},
-				"total": bson.M{
-					"$sum": bson.M{
-						"$multiply": bson.A{
-							"$price",
-							"$$items.$_id",
-						},
+	group := bson.D{primitive.E{
+		Key: "$group",
+		Value: bson.M{
+			"_id": nil,
+			"total": bson.M{
+				"$sum": bson.M{
+					"$multiply": bson.A{
+						"$price",
+						itemsQty,
 					},
 				},
 			},
-		}},
-	}, opts)
+		},
+	}}
+
+	cur, err := db.collectionItems.Aggregate(ctx, mongo.Pipeline{match, group}, opts)
 	if err != nil {
 		return "", err
 	}

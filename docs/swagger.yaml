@@ -18,9 +18,9 @@ definitions:
     properties:
       customer_id:
         type: string
-      item_ids:
+      items:
         items:
-          type: string
+          $ref: '#/definitions/domain.OrderItem'
         type: array
     type: object
   domain.Error:
@@ -46,6 +46,13 @@ definitions:
         type: string
       price:
         type: number
+      quantity:
+        type: integer
+    type: object
+  domain.OrderItem:
+    properties:
+      item_id:
+        type: string
       quantity:
         type: integer
     type: object

@@ -531,10 +531,10 @@
                 "customer_id": {
                     "type": "string"
                 },
-                "item_ids": {
+                "items": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/domain.OrderItem"
                     }
                 }
             }
@@ -573,6 +573,17 @@
                 },
                 "price": {
                     "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.OrderItem": {
+            "type": "object",
+            "properties": {
+                "item_id": {
+                    "type": "string"
                 },
                 "quantity": {
                     "type": "integer"
