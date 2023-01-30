@@ -8,7 +8,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/viper v1.15.0
-	github.com/swaggo/swag v1.8.9
+	github.com/swaggo/swag v1.8.10
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible
 	go.mongodb.org/mongo-driver v1.11.1
