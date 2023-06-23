@@ -5,13 +5,14 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Pavel7004/Common/tracing"
-	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
-	"github.com/Pavel7004/WebShop/pkg/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/Pavel7004/Common/tracing"
+	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
+	"github.com/Pavel7004/WebShop/pkg/domain"
 )
 
 func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest) (string, error) {

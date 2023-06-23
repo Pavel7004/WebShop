@@ -3,9 +3,10 @@ package models
 import (
 	"time"
 
-	"github.com/Pavel7004/WebShop/pkg/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/Pavel7004/WebShop/pkg/domain"
 )
 
 type Item struct {
