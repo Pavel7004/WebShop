@@ -13,10 +13,11 @@ package http
 // @host      localhost:8080
 
 import (
+	"github.com/gin-gonic/gin"
+
 	v1 "github.com/Pavel7004/WebShop/pkg/adapters/http/v1"
 	"github.com/Pavel7004/WebShop/pkg/components"
 	"github.com/Pavel7004/WebShop/pkg/infra/config"
-	"github.com/gin-gonic/gin"
 )
 
 type Server struct {

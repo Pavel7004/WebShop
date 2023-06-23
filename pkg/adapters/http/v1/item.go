@@ -4,9 +4,10 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/domain"
-	"github.com/gin-gonic/gin"
 )
 
 // GetItem godoc

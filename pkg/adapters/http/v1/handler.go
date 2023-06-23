@@ -1,10 +1,11 @@
 package v1
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/Pavel7004/WebShop/pkg/components"
 	"github.com/Pavel7004/WebShop/pkg/domain"
 	"github.com/Pavel7004/WebShop/pkg/infra/config"
-	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {

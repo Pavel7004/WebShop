@@ -1,13 +1,15 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type StatusID string
 
 var (
 	CREATED   StatusID = "created"
 	PAID      StatusID = "paid"
-	DELIVERED StatusID = "finished"
+	DELIVERED StatusID = "delivered"
 )
 
 type OrderItem struct {
