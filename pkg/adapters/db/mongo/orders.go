@@ -22,66 +22,38 @@ func (db *DB) CreateOrder(ctx context.Context, reqDom *domain.CreateOrderRequest
 		return "", err
 	}
 
-	ids := make([]primitive.ObjectID, 0, len(req.Items))
-	qty := make(map[string]uint64, len(req.Items))
-	for _, item := range req.Items {
-		ids = append(ids, item.ID)
-		qty[item.ID.Hex()] = item.Quantity
+	itemIDs := make([]primitive.ObjectID, len(req.Items))
+	itemQuantities := make([]uint64, len(req.Items))
+
+	for i, item := range req.Items {
+		itemIDs[i] = item.ID
+		itemQuantities[i] = item.Quantity
 	}
 
-	opts := new(options.AggregateOptions)
-	opts.SetLet(bson.M{
-		"items": qty,
-	})
-
-	match := bson.D{primitive.E{
-		Key: "$match",
-		Value: bson.M{
-			"_id": bson.M{"$in": ids},
-		},
-	}}
-
-	itemsQty := bson.M{
-		"$getField": bson.M{
-			"$concat": bson.A{
-				bson.M{
-					"$getField": bson.A{
-						"$_id",
-					},
-				},
-				".1",
-			},
-		},
+	pipeline := mongo.Pipeline{
+		// Get database items that are presented in order request.
+		{primitive.E{Key: "$match", Value: bson.M{"_id": bson.M{"$in": itemIDs}}}},
+		// Populate documents with bought goods amount.
+		// $indexOfArray based on record's ID returning an index from itemIDs,
+		// which is the same as the index from itemQuantities.
+		{primitive.E{Key: "$addFields", Value: bson.M{"quantity_bought": bson.M{"$arrayElemAt": bson.A{itemQuantities, bson.M{"$indexOfArray": bson.A{itemIDs, "$_id"}}}}}}},
+		// Calculate final price.
+		{primitive.E{Key: "$group", Value: bson.M{"_id": nil, "total": bson.M{"$sum": bson.M{"$multiply": bson.A{"$price", "$quantity_bought"}}}}}},
 	}
-
-	group := bson.D{primitive.E{
-		Key: "$group",
-		Value: bson.M{
-			"_id": nil,
-			"total": bson.M{
-				"$sum": bson.M{
-					"$multiply": bson.A{
-						"$price",
-						itemsQty,
-					},
-				},
-			},
-		},
-	}}
-
-	cur, err := db.collectionItems.Aggregate(ctx, mongo.Pipeline{match, group}, opts)
+	cursor, err := db.collectionItems.Aggregate(ctx, pipeline)
 	if err != nil {
 		return "", err
 	}
+	defer cursor.Close(ctx)
 
-	var total bson.M
-	if err := cur.All(ctx, total); err != nil {
+	var result struct {
+		Total float64 `bson:"total"`
+	}
+	if err := cursor.Decode(&result); err != nil {
 		return "", err
 	}
-	cur.Close(ctx)
 
-	req.Total = total["total"].(float64)
-
+	req.Total = result.Total
 	res, err := db.collectionOrders.InsertOne(ctx, req)
 	if err != nil {
 		return "", err
@@ -121,28 +93,32 @@ func (db *DB) GetOrderInfo(ctx context.Context, id string) (*domain.Order, error
 	return result.ConvertToDomain(), nil
 }
 
-func (db *DB) UpdateOrder(ctx context.Context, id string, ord domain.UpdateOrderRequest) (int64, error) {
+func (db *DB) UpdateOrder(ctx context.Context, id string, ord domain.UpdateOrderRequest) error {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
 	req, err := models.ConvertUpdateOrderReqToBSON(&ord)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	obj, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return 0, domain.ErrInvalidId
+		return domain.ErrInvalidId
 	}
 
 	res, err := db.collectionOrders.UpdateByID(ctx, obj, req)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return 0, domain.ErrItemNotFound
+			return domain.ErrItemNotFound
 		}
 
-		return 0, err
+		return err
 	}
 
-	return res.ModifiedCount, nil
+	if res.ModifiedCount < 1 {
+		return domain.ErrItemNotFound
+	}
+
+	return nil
 }
