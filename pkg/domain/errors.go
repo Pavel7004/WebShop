@@ -10,6 +10,7 @@ var (
 	ErrNoOrder               = NewError(404, "order_not_provided", "Order is nil")
 	ErrOrderNotPaid          = NewError(404, "order_not_paid", "Order isn't paid")
 	ErrOrderAlreadyDelivered = NewError(404, "order_delivered", "Order already delivered")
+	ErrOrderQuantity         = NewError(400, "order_quantity_invalid", "Order items quantity can't be negative or zero")
 )
 
 type Error struct {
