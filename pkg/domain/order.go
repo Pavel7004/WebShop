@@ -14,7 +14,7 @@ var (
 
 type OrderItem struct {
 	ID       string `json:"item_id"`
-	Quantity uint64 `json:"quantity"`
+	Quantity int64  `json:"quantity"`
 }
 
 type Order struct {

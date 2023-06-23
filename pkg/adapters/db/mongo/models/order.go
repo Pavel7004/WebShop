@@ -41,7 +41,7 @@ func ConvertAddOrderRequestFromDomain(ord *domain.CreateOrderRequest) (*Order, e
 
 		itemIDs = append(itemIDs, OrderItem{
 			ID:       obj,
-			Quantity: it.Quantity,
+			Quantity: uint64(it.Quantity),
 		})
 	}
 
@@ -77,7 +77,7 @@ func ConvertUpdateOrderReqToBSON(ord *domain.UpdateOrderRequest) (bson.M, error)
 
 			itemIDs = append(itemIDs, OrderItem{
 				ID:       obj,
-				Quantity: it.Quantity,
+				Quantity: uint64(it.Quantity),
 			})
 		}
 
@@ -97,7 +97,7 @@ func (o *Order) ConvertToDomain() *domain.Order {
 	for _, it := range o.Items {
 		items = append(items, domain.OrderItem{
 			ID:       it.ID.Hex(),
-			Quantity: it.Quantity,
+			Quantity: int64(it.Quantity),
 		})
 	}
 
