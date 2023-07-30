@@ -28,6 +28,17 @@ func (user *User) ConvertToDomain() *domain.User {
 	}
 }
 
+func ConvertUserFromDomain(user *domain.RegisterUserRequest) *User {
+	return &User{
+		ID:        primitive.NewObjectID(),
+		Name:      user.Name,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: time.Now(),
+		Balance:   0,
+	}
+}
+
 func ConvertUsersToDomain(users []User) []*domain.User {
 	result := make([]*domain.User, 0, len(users))
 

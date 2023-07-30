@@ -22,13 +22,7 @@ func (db *DB) RegisterUser(ctx context.Context, user *domain.RegisterUserRequest
 	ctx, cancel := context.WithTimeout(ctx, db.cfg.Timeout)
 	defer cancel()
 
-	res, err := db.collectionUsers.InsertOne(ctx, bson.M{ // TODO: Move user init to struct
-		"name":       user.Name,
-		"email":      user.Email,
-		"phone":      user.Phone,
-		"created_at": time.Now(),
-		"balance":    0,
-	})
+	res, err := db.collectionUsers.InsertOne(ctx, models.ConvertUserFromDomain(user))
 
 	if err != nil {
 		return "", err
