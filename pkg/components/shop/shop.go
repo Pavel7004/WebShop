@@ -108,15 +108,6 @@ func (s *Shop) CreateOrder(ctx context.Context, req *domain.CreateOrderRequest) 
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
-	total, err := s.db.GetItemsTotalCost(ctx, req.ItemIDs)
-	if err != nil {
-		return "", err
-	}
-
-	req.Total = total
-
-	span.SetTag("Total", total)
-
 	return s.db.CreateOrder(ctx, req)
 }
 
@@ -126,18 +117,12 @@ func (s *Shop) PayOrder(ctx context.Context, orderID string) error {
 
 	span.SetTag("orderID", orderID)
 
-	modCount, err := s.db.UpdateOrder(ctx, orderID, domain.UpdateOrderRequest{
+	err := s.db.UpdateOrder(ctx, orderID, domain.UpdateOrderRequest{
 		Status: &domain.PAID,
 	})
 	if err != nil {
 		return err
 	}
-
-	if modCount < 1 {
-		return domain.ErrOrderNotProcessed
-	}
-
-	span.SetTag("mod_count", modCount)
 
 	return nil
 }
@@ -146,7 +131,7 @@ func (s *Shop) ProcessOrder(ctx context.Context, orderID string) error {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 
-	span.SetTag("order_ID", orderID)
+	span.SetTag("order_id", orderID)
 
 	order, err := s.db.GetOrderInfo(ctx, orderID)
 	if err != nil {
@@ -155,25 +140,18 @@ func (s *Shop) ProcessOrder(ctx context.Context, orderID string) error {
 
 	span.SetTag("order_status", string(order.Status))
 
-	if order.Status == domain.CREATED {
+	switch order.Status {
+	case domain.CREATED:
 		return domain.ErrOrderNotPaid
-	}
-
-	if order.Status == domain.DELIVERED {
+	case domain.DELIVERED:
 		return domain.ErrOrderAlreadyDelivered
 	}
 
-	modCount, err := s.db.UpdateOrder(ctx, orderID, domain.UpdateOrderRequest{
+	err = s.db.UpdateOrder(ctx, orderID, domain.UpdateOrderRequest{
 		Status: &domain.DELIVERED,
 	})
 	if err != nil {
 		return err
-	}
-
-	span.SetTag("mod_count", modCount)
-
-	if modCount < 1 {
-		return domain.ErrOrderNotProcessed
 	}
 
 	return nil

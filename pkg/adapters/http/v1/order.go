@@ -3,9 +3,10 @@ package v1
 import (
 	"context"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/domain"
-	"github.com/gin-gonic/gin"
 )
 
 // CreateOrder godoc
@@ -30,6 +31,11 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	if err := ValidateOrder(&req); err != nil {
+		h.SendError(c, err)
+		return
+	}
+
 	id, err := h.shop.CreateOrder(ctx, &req)
 	if err != nil {
 		h.SendError(c, err)
@@ -39,4 +45,14 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 	span.SetTag("order_id", id)
 
 	c.JSON(200, id)
+}
+
+func ValidateOrder(req *domain.CreateOrderRequest) error {
+	for _, item := range req.Items {
+		if item.Quantity <= 0 {
+			return domain.ErrOrderQuantity
+		}
+	}
+
+	return nil
 }

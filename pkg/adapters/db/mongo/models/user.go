@@ -3,8 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/Pavel7004/WebShop/pkg/domain"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/Pavel7004/WebShop/pkg/domain"
 )
 
 type User struct {
@@ -24,6 +25,17 @@ func (user *User) ConvertToDomain() *domain.User {
 		Phone:     user.Phone,
 		CreatedAt: user.CreatedAt,
 		Balance:   user.Balance,
+	}
+}
+
+func ConvertUserFromDomain(user *domain.RegisterUserRequest) *User {
+	return &User{
+		ID:        primitive.NewObjectID(),
+		Name:      user.Name,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: time.Now(),
+		Balance:   0,
 	}
 }
 

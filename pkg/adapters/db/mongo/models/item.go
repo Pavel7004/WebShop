@@ -3,9 +3,10 @@ package models
 import (
 	"time"
 
-	"github.com/Pavel7004/WebShop/pkg/domain"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/Pavel7004/WebShop/pkg/domain"
 )
 
 type Item struct {
@@ -21,7 +22,7 @@ type Item struct {
 
 func ConvertItemFromDomainRequest(it *domain.AddItemRequest) (*Item, error) {
 	if it == nil {
-		return nil, domain.ErrItemNotFound // TODO: fix no item error
+		return nil, domain.ErrNoItem
 	}
 
 	ownerID, err := primitive.ObjectIDFromHex(it.OwnerID)
