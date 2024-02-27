@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 
+	"github.com/Pavel7004/Common/tracing"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
 	"github.com/Pavel7004/WebShop/pkg/domain"
 )
@@ -19,6 +20,9 @@ func (db *DB) CreateOrder(ctx context.Context, reqDom *domain.CreateOrderRequest
 
 	req, err := models.ConvertAddOrderRequestFromDomain(reqDom)
 	if err != nil {
+		span.SetTag("error", true)
+		span.LogKV("event", "error", "message", err.Error())
+		log.Error().Err(err).Msg("Error in convertion")
 		return "", err
 	}
 
@@ -29,6 +33,7 @@ func (db *DB) CreateOrder(ctx context.Context, reqDom *domain.CreateOrderRequest
 		itemIDs[i] = item.ID
 		itemQuantities[i] = item.Quantity
 	}
+	log.Debug().Msgf("%v ;; %v", itemIDs, itemQuantities)
 
 	pipeline := mongo.Pipeline{
 		// Get database items that are presented in order request.
@@ -36,31 +41,66 @@ func (db *DB) CreateOrder(ctx context.Context, reqDom *domain.CreateOrderRequest
 		// Populate documents with bought goods amount.
 		// $indexOfArray based on record's ID returning an index from itemIDs,
 		// which is the same as the index from itemQuantities.
-		{primitive.E{Key: "$addFields", Value: bson.M{"quantity_bought": bson.M{"$arrayElemAt": bson.A{itemQuantities, bson.M{"$indexOfArray": bson.A{itemIDs, "$_id"}}}}}}},
+		{
+			primitive.E{
+				Key: "$addFields",
+				Value: bson.M{
+					"quantity_bought": bson.M{
+						"$arrayElemAt": bson.A{
+							itemQuantities,
+							bson.M{"$indexOfArray": bson.A{itemIDs, "$_id"}},
+						},
+					},
+				},
+			},
+		},
 		// Calculate final price.
-		{primitive.E{Key: "$group", Value: bson.M{"_id": nil, "total": bson.M{"$sum": bson.M{"$multiply": bson.A{"$price", "$quantity_bought"}}}}}},
+		{
+			primitive.E{
+				Key: "$group",
+				Value: bson.M{
+					"_id": nil,
+					"total": bson.M{
+						"$sum": bson.M{"$multiply": bson.A{"$price", "$quantity_bought"}},
+					},
+				},
+			},
+		},
 	}
 	cursor, err := db.collectionItems.Aggregate(ctx, pipeline)
 	if err != nil {
+		span.SetTag("error", true)
+		span.LogKV("event", "error", "message", err.Error())
+		log.Error().Err(err).Msg("Error in aggregation")
 		return "", err
 	}
 	defer cursor.Close(ctx)
 
+	log.Debug().Msgf("Cursor = %v", cursor)
 	var result struct {
 		Total float64 `bson:"total"`
 	}
 	if err := cursor.Decode(&result); err != nil {
+		span.SetTag("error", true)
+		span.LogKV("event", "error", "message", err.Error())
+		log.Error().Err(err).Msg("Error in Decode")
 		return "", err
 	}
 
 	req.Total = result.Total
 	res, err := db.collectionOrders.InsertOne(ctx, req)
 	if err != nil {
+		span.SetTag("error", true)
+		span.LogKV("event", "error", "message", err.Error())
+		log.Error().Err(err).Msg("Error in InsertOne")
 		return "", err
 	}
 
 	obj, ok := res.InsertedID.(primitive.ObjectID)
 	if !ok {
+		span.SetTag("error", true)
+		span.LogKV("event", "error", "message", domain.ErrInvalidId.Error())
+		log.Error().Err(domain.ErrInvalidId).Msg("Result isn't object id.")
 		return "", domain.ErrInvalidId
 	}
 
