@@ -3,11 +3,11 @@ package mongo
 import (
 	"context"
 
+	"github.com/Pavel7004/Common/tracing"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/adapters/db"
 	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
 	"github.com/Pavel7004/WebShop/pkg/domain"

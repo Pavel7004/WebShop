@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Pavel7004/Common/tracing"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/Pavel7004/Common/tracing"
 	"github.com/Pavel7004/WebShop/pkg/adapters/db/mongo/models"
 	"github.com/Pavel7004/WebShop/pkg/domain"
 )
