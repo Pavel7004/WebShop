@@ -6,7 +6,7 @@ require (
 	github.com/Pavel7004/Common v0.0.0-20220306134122-e265e5f6cbec
 	github.com/gin-gonic/gin v1.9.1
 	github.com/opentracing/opentracing-go v1.2.0
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.33.0
 	github.com/spf13/viper v1.16.0
 	github.com/swaggo/swag v1.16.2
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
