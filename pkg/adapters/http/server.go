@@ -13,8 +13,14 @@ package http
 // @host      localhost:8080
 
 import (
-	"github.com/gin-gonic/gin"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 
+	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+
+	"github.com/Pavel7004/WebShop/pkg/adapters/http/auth"
 	v1 "github.com/Pavel7004/WebShop/pkg/adapters/http/v1"
 	"github.com/Pavel7004/WebShop/pkg/components"
 	"github.com/Pavel7004/WebShop/pkg/infra/config"
@@ -45,6 +51,13 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) prepareRouter() {
+	key, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	if err != nil {
+		log.Fatal().Err(err).Send()
+	}
+	authMiddleware := auth.New(key)
+	s.router.POST("/login", authMiddleware.Authentication)
+
 	v1 := s.router.Group("/shop/v1")
 	{
 		v1.GET("/items/:item_id", s.v1.GetItem)             // -
@@ -53,10 +66,10 @@ func (s *Server) prepareRouter() {
 		v1.GET("/items", s.v1.GetItems)                     // -
 		v1.GET("/items/recent", s.v1.GetRecentlyAddedItems) // -
 
-		v1.GET("/user/:user_id", s.v1.GetUser)                 // -
-		v1.POST("/user/new", s.v1.RegisterUser)                // -
-		v1.GET("/user/:user_id/items", s.v1.GetItemsByOwnerId) // -
-		v1.GET("/users/recent", s.v1.GetRecentlyAddedUsers)    // -
+		v1.GET("/user/:user_id", authMiddleware.Middleware, s.v1.GetUser) // -
+		v1.POST("/user/new", s.v1.RegisterUser)                           // -
+		v1.GET("/user/:user_id/items", s.v1.GetItemsByOwnerId)            // -
+		v1.GET("/users/recent", s.v1.GetRecentlyAddedUsers)               // -
 
 		v1.POST("/orders/new", s.v1.CreateOrder) // -
 	}

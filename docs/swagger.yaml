@@ -49,6 +49,13 @@ definitions:
       quantity:
         type: integer
     type: object
+  domain.LoginUserRequest:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
   domain.OrderItem:
     properties:
       item_id:
@@ -107,6 +114,40 @@ info:
   title: WebShop API
   version: "0.1"
 paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login user
+      parameters:
+      - description: Request to login user
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/domain.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.Error'
+      summary: Login user
+      tags:
+      - Users
   /shop/v1/items:
     get:
       description: Get items with specified price range

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package shop.inventory_service.v1;
+option go_package = "github.com/Pavel7004/WebShop/pkg/pb/inventory";
+
+message InventoryItem {
+  string item_id = 1;
+  int32 quantity = 2;
+}
+
+message ReserveItemsRequest {
+  repeated InventoryItem items = 1;
+}
+
+message CancelReserveRequest {
+  repeated InventoryItem items = 1;
+}
+
+message ReserveItemsResponse {
+  bool success = 1;
+}
+
+message CancelReserveResponse {
+  bool success = 1;
+}
+
+service InventoryService {
+  rpc ReserveItems(ReserveItemsRequest) returns (ReserveItemsResponse);
+  rpc CancelReserve(CancelReserveRequest) returns (CancelReserveResponse);
+}

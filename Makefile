@@ -1,10 +1,12 @@
-all: lint
+all: build
+
+name := shop
 
 build:
 	@echo "------------------"
 	@echo "Building app...   "
 	@echo "------------------"
-	go build cmd/shop/shop.go
+	go build -o $(name) ./cmd/shop/shop.go
 
 swag:
 	@echo "------------------"
@@ -18,11 +20,8 @@ lint:
 	@echo "------------------"
 	golangci-lint run ./...
 
-jaeger:
-	docker run -dp 6831:6831/udp -p 16686:16686 jaegertracing/all-in-one:latest
-
 clear:
-	rm shop *.out
+	rm $(name) *.out
 
 clean:
 	go clean -testcache

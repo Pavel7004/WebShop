@@ -2,10 +2,11 @@ package v1
 
 import (
 	"context"
-
-	"github.com/gin-gonic/gin"
+	"net/http"
 
 	"github.com/Pavel7004/Common/tracing"
+	"github.com/gin-gonic/gin"
+
 	"github.com/Pavel7004/WebShop/pkg/domain"
 )
 
@@ -65,7 +66,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, id)
+	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully", "id": id})
 }
 
 // GetItemsByOwnerId godoc

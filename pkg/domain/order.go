@@ -10,6 +10,8 @@ var (
 	CREATED   StatusID = "created"
 	PAID      StatusID = "paid"
 	DELIVERED StatusID = "delivered"
+	CANCELED  StatusID = "canceled"
+	REFUNDED  StatusID = "refunded"
 )
 
 type OrderItem struct {
@@ -21,9 +23,11 @@ type Order struct {
 	ID         string      `json:"id"`
 	Total      float64     `json:"total"`
 	Items      []OrderItem `json:"items"`
-	CreatedAt  time.Time   `json:"created_at"`
 	Status     StatusID    `json:"status"`
 	CustomerID string      `json:"customer_id"`
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type CreateOrderRequest struct {
